@@ -8,6 +8,7 @@ import {
   searchMetaQuery,
 } from "@/features/search/queries";
 import { useDebounce } from "@/hooks/use-debounce";
+import { postSegment } from "@/lib/post-url";
 import { m } from "@/paraglide/messages";
 
 const searchSchema = z.object({
@@ -77,8 +78,8 @@ function SearchRoute() {
     setQuery(newQuery);
   };
 
-  const handleSelectPost = (slug: string) => {
-    navigate({ to: "/post/$slug", params: { slug } });
+  const handleSelectPost = (post: { id: string | number; slug: string }) => {
+    navigate({ to: "/post/$slug", params: { slug: postSegment(post) } });
   };
 
   const handleBack = () => {

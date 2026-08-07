@@ -12,6 +12,7 @@ import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import theme from "@theme";
 import { ThemeProvider } from "@/components/common/theme-provider";
 import { siteConfigQuery } from "@/features/config/queries";
+import { setPostUrlSuffix } from "@/lib/post-url";
 import { bannedStatusQuery } from "@/features/users/queries";
 import TanStackQueryDevtools from "@/integrations/tanstack-query/devtools";
 import { clientEnv } from "@/lib/env/client.env";
@@ -26,6 +27,10 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
   beforeLoad: async ({ context, location }) => {
     const siteConfig =
       await context.queryClient.ensureQueryData(siteConfigQuery);
+
+    // 文章 URL 格式开关：在渲染任何子路由（含文章详情页 <Link>）之前写入，
+    // 保证链接生成与路由解析都能同步读到当前模式。
+    setPostUrlSuffix(siteConfig?.postUrlSuffix ?? "html");
 
     // 全站封禁拦截：已登录但被封禁的用户访问任何页面都跳转到 /banned
     if (location.pathname !== "/banned") {

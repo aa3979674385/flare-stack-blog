@@ -128,7 +128,7 @@ export class PostProcessWorkflow extends WorkflowEntrypoint<Env, Params> {
 
     // 5. Invalidate caches
     await step.do("invalidate caches", async () => {
-      await invalidatePostCaches(this.env, updatedPost.slug);
+      await invalidatePostCaches(this.env, updatedPost);
     });
 
     // 6. Update sync hash in KV
@@ -166,7 +166,7 @@ export class PostProcessWorkflow extends WorkflowEntrypoint<Env, Params> {
     });
 
     await step.do("invalidate caches", async () => {
-      await invalidatePostCaches(this.env, post.slug);
+      await invalidatePostCaches(this.env, post);
       await CacheService.deleteKey(
         { env: this.env },
         POSTS_CACHE_KEYS.syncHash(postId),

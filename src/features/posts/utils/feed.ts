@@ -4,6 +4,7 @@ import type { SiteConfig } from "@/features/config/config.schema";
 import * as ConfigService from "@/features/config/service/config.service";
 import { convertToPlainText } from "@/features/posts/utils/content";
 import { getDb } from "@/lib/db";
+import { postPath } from "@/lib/post-url";
 import { PostsTable } from "@/lib/db/schema";
 import { serverEnv } from "@/lib/env/server.env";
 
@@ -74,7 +75,7 @@ export async function buildFeed(env: Env, executionCtx: ExecutionContext) {
     feed.addItem({
       title: post.title,
       id: post.id.toString(),
-      link: `https://${DOMAIN}/post/${encodeURIComponent(post.slug)}`,
+      link: `https://${DOMAIN}${postPath(post)}`,
       description: post.summary ?? "",
       content: convertToPlainText(post.contentJson),
       author: [feedAuthor],

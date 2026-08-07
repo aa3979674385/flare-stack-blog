@@ -12,6 +12,7 @@ import {
   PAGEVIEW_CACHE_KEYS,
   type TrafficRangeData,
 } from "@/features/pageview/pageview.schema";
+import { postPath } from "@/lib/post-url";
 import { m } from "@/paraglide/messages";
 
 function getTimeRange(range: DashboardRange) {
@@ -118,7 +119,7 @@ export async function getDashboardStats(
           postTitle: c.posts!.title,
         }),
         time: c.comments.createdAt,
-        link: `/post/${c.posts!.slug}?highlightCommentId=${c.comments.id}&rootId=${c.comments.rootId ?? c.comments.id}#comment-${c.comments.id}`,
+        link: `${postPath(c.posts!)}?highlightCommentId=${c.comments.id}&rootId=${c.comments.rootId ?? c.comments.id}#comment-${c.comments.id}`,
         rootId: c.comments.rootId ?? c.comments.id,
       })),
     ...recentPosts.map((p) => ({
@@ -127,7 +128,7 @@ export async function getDashboardStats(
         postTitle: p.title,
       }),
       time: p.publishedAt,
-      link: `/post/${p.slug}`,
+      link: postPath(p),
     })),
     ...recentUsers.map((u) => ({
       type: "user" as const,

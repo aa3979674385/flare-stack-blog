@@ -12,6 +12,7 @@ import { sendReplyNotification } from "@/features/comments/workflows/helpers";
 import { publishNotificationEvent } from "@/features/notification/service/notification.publisher";
 import * as PostService from "@/features/posts/services/posts.service";
 import { convertToPlainText } from "@/features/posts/utils/content";
+import { postPath } from "@/lib/post-url";
 import { serverEnv } from "@/lib/env/server.env";
 import { err, ok } from "@/lib/errors";
 
@@ -181,7 +182,7 @@ export async function createComment(
           postTitle: post.title,
           commenterName,
           commentPreview: `${commentPreview}${commentPreview.length >= 100 ? "..." : ""}`,
-          commentUrl: `https://${DOMAIN}/post/${post.slug}?highlightCommentId=${comment.id}&rootId=${comment.id}#comment-${comment.id}`,
+          commentUrl: `https://${DOMAIN}${postPath(post)}?highlightCommentId=${comment.id}&rootId=${comment.id}#comment-${comment.id}`,
         },
       });
     }

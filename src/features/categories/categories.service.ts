@@ -2,6 +2,7 @@ import { z } from "zod";
 import * as CacheService from "@/features/cache/cache.service";
 import * as PostRepo from "@/features/posts/data/posts.data";
 import { POSTS_CACHE_KEYS } from "@/features/posts/schema/posts.schema";
+import { postPath } from "@/lib/post-url";
 import * as CategoryRepo from "@/features/categories/data/categories.data";
 import type {
   Category,
@@ -94,7 +95,7 @@ async function invalidateCategoryRelatedCache(
     }
     const cdnUrls = ["/", "/posts"];
     for (const post of affectedPosts) {
-      cdnUrls.push(`/post/${post.slug}`);
+      cdnUrls.push(postPath(post));
     }
     tasks.push(purgeCDNCache(context.env, { urls: cdnUrls }));
     await Promise.all(tasks);

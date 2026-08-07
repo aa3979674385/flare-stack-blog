@@ -148,6 +148,7 @@ export function resolveSiteConfig(
     description: config?.site?.description ?? blogConfig.description,
     cardKeyPurchaseUrl:
       config?.site?.cardKeyPurchaseUrl ?? blogConfig.cardKeyPurchaseUrl,
+    postUrlSuffix: config?.site?.postUrlSuffix ?? blogConfig.postUrlSuffix ?? "html",
     social: migrateSocial(config?.site?.social),
     icons: {
       faviconSvg:

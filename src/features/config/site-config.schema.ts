@@ -431,6 +431,8 @@ export const FullSiteConfigSchema = z.object({
   description: createSiteTextSchema(300),
   // 购买卡密链接：留空则不显示「前往购买卡密」入口（会员中心输入卡密处）
   cardKeyPurchaseUrl: z.string().default(""),
+  // 文章 URL 格式：none=无后缀 / html=slug.html / id=id.html
+  postUrlSuffix: z.enum(["none", "html", "id"]).default("html"),
   social: z.array(SocialLinkSchema),
   icons: z.object({
     faviconSvg: createAssetPathSchema(),
@@ -453,6 +455,7 @@ export function createSiteConfigInputFormSchema(messages: Messages) {
     author: createSiteTextFormSchema(80, messages).optional(),
     description: createSiteTextFormSchema(300, messages).optional(),
     cardKeyPurchaseUrl: z.string().max(500).optional(),
+    postUrlSuffix: z.enum(["none", "html", "id"]).optional(),
     social: z.array(SocialLinkSchema).optional(),
     icons: z
       .object({
@@ -479,9 +482,10 @@ export function createSiteConfigInputFormSchema(messages: Messages) {
 export const SiteConfigInputSchema = z.object({
   title: createSiteTextSchema(120).optional(),
   author: createSiteTextSchema(80).optional(),
-  description: createSiteTextSchema(300).optional(),
-  cardKeyPurchaseUrl: z.string().optional(),
-  social: z.array(SocialLinkSchema).optional(),
+    description: createSiteTextSchema(300).optional(),
+    cardKeyPurchaseUrl: z.string().optional(),
+    postUrlSuffix: z.enum(["none", "html", "id"]).optional(),
+    social: z.array(SocialLinkSchema).optional(),
   icons: z
     .object({
       faviconSvg: createOptionalAssetPathSchema().optional(),

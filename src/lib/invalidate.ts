@@ -1,4 +1,5 @@
 import { isNotInProduction, serverEnv } from "@/lib/env/server.env";
+import { postPath, type PostRef } from "@/lib/post-url";
 
 interface PurgeOptions {
   urls?: Array<string>; // 精确匹配的URL
@@ -96,12 +97,13 @@ export async function purgeCDNCache(env: Env, options: PurgeOptions) {
   }
 }
 
-export async function purgePostCDNCache(env: Env, slug: string) {
+export async function purgePostCDNCache(env: Env, post: PostRef) {
+  const pagePath = postPath(post);
   return purgeCDNCache(env, {
     urls: [
-      `/post/${slug}`, // 页面
-      `/api/post/${slug}`, // 单篇 API（单数）
-      `/api/post/${slug}/related`, // 相关文章 API
+      pagePath, // 页面（随后台 URL 模式变化：/post/{slug} | /post/{slug}.html | /post/{id}.html）
+      `/api/post/${post.slug}`, // 单篇 API（单数，始终用原始 slug）
+      `/api/post/${post.slug}/related`, // 相关文章 API
       `/api/tags`, // 标签 API
       "/",
     ],

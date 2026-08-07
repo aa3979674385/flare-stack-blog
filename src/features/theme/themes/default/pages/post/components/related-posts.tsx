@@ -6,6 +6,7 @@ import { relatedPostsQuery } from "@/features/posts/queries";
 import { formatDate } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 import { config } from "../../../config";
+import { postSegment } from "@/lib/post-url";
 
 interface RelatedPostsProps {
   slug: string;
@@ -32,7 +33,7 @@ export function RelatedPosts({ slug }: RelatedPostsProps) {
           <Link
             key={post.id}
             to="/post/$slug"
-            params={{ slug: post.slug }}
+            params={{ slug: postSegment(post) }}
             className="group flex flex-col h-full space-y-3 p-4 -mx-4 md:mx-0 md:p-0 rounded-lg hover:bg-muted/40 md:hover:bg-transparent transition-colors"
           >
             <div className="flex items-center gap-2 text-[10px] text-muted-foreground/60 font-mono tracking-wider">

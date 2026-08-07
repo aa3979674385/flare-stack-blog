@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Flame, Clock } from "lucide-react";
 import { popularPostsQuery } from "@/features/posts/queries";
 import { cn } from "@/lib/utils";
+import { postSegment } from "@/lib/post-url";
 
 /** 数字排名配色：1 红、2 橙、3 绿、4 灰、5 浅灰蓝 */
 const RANK_ACCENT = [
@@ -53,7 +54,7 @@ export function HotPosts() {
         {/* ── TOP1 大卡片（封面满铺 + 底部通透渐变）── */}
         <Link
           to="/post/$slug"
-          params={{ slug: top1.slug }}
+          params={{ slug: postSegment(top1) }}
           className="relative block overflow-hidden rounded-lg h-40 group shadow-sm"
         >
           {top1.coverImage ? (
@@ -89,7 +90,7 @@ export function HotPosts() {
               <Link
                 key={post.id}
                 to="/post/$slug"
-                params={{ slug: post.slug }}
+                params={{ slug: postSegment(post) }}
                 className="group flex items-center gap-3 py-2.5 px-1 -mx-1 rounded-lg hover:bg-black/[0.03] dark:hover:bg-white/[0.04] transition-colors"
               >
                 {/* 缩略图（固定 56×56） */}

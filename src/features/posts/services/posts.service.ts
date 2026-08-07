@@ -429,7 +429,7 @@ export async function deletePost(
     );
     tasks.push(CacheService.bumpVersion(context, "posts:list"));
     tasks.push(SearchService.deleteIndex(context, { id: data.id }));
-    tasks.push(purgePostCDNCache(context.env, post.slug));
+    tasks.push(purgePostCDNCache(context.env, post));
     tasks.push(
       CacheService.deleteKey(context, POSTS_CACHE_KEYS.syncHash(data.id)),
     );

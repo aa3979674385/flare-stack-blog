@@ -52,7 +52,9 @@ export function PublicLayout({
   const sidebarOrder = isPostPage ? "order-2 lg:order-2" : "order-2 lg:order-1";
   const mainOrder = isPostPage ? "order-1 lg:order-1" : "order-1 lg:order-2";
   // 详情页：从 URL 解析 slug 取 post，供侧边栏下载模块使用
-  const postSlug = isPostPage ? pathname.slice("/post/".length) : "";
+  // 注意去掉可能的 .html 后缀（后台 URL 模式为 html / id 时路径形如 /post/{slug}.html 或 /post/{id}.html）
+  const rawSegment = isPostPage ? pathname.slice("/post/".length) : "";
+  const postSlug = rawSegment.replace(/\.html$/i, "");
   const { data: sidebarPost } = useQuery({
     ...postBySlugQuery(postSlug),
     enabled: isPostPage && postSlug.length > 0,

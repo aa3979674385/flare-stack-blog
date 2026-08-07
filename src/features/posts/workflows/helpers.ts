@@ -6,17 +6,18 @@ import * as SearchService from "@/features/search/service/search.service";
 import { TAGS_CACHE_KEYS } from "@/features/tags/tags.schema";
 import { getDb } from "@/lib/db";
 import { purgePostCDNCache } from "@/lib/invalidate";
+import { type PostRef } from "@/lib/post-url";
 
 export async function fetchPost(env: Env, postId: number) {
   const db = getDb(env);
   return await PostService.findPostById({ db, env }, { id: postId });
 }
 
-export async function invalidatePostCaches(env: Env, slug: string) {
+export async function invalidatePostCaches(env: Env, post: PostRef) {
   const version = await CacheService.getVersion({ env }, "posts:detail");
   await Promise.all([
-    CacheService.deleteKey({ env }, POSTS_CACHE_KEYS.detail(version, slug)),
-    purgePostCDNCache(env, slug),
+    CacheService.deleteKey({ env }, POSTS_CACHE_KEYS.detail(version, post.slug)),
+    purgePostCDNCache(env, post),
     CacheService.bumpVersion({ env }, "posts:list"),
     CacheService.deleteKey({ env }, TAGS_CACHE_KEYS.publicList),
     CacheService.deleteKey({ env }, CATEGORIES_CACHE_KEYS.publicList),

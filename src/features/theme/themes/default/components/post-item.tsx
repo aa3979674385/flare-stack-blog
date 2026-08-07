@@ -5,6 +5,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import type { PostItem as PostItemType } from "@/features/posts/schema/posts.schema";
 import { formatDate } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
+import { postSegment } from "@/lib/post-url";
 
 interface PostItemProps {
   post: PostItemType;
@@ -19,7 +20,7 @@ export const PostItem = memo(
       <div className="group border-b border-border/40 last:border-0">
         <Link
           to="/post/$slug"
-          params={{ slug: post.slug }}
+          params={{ slug: postSegment(post) }}
           className="block py-8 md:py-10 transition-all duration-300 hover:pl-4"
         >
           <div className="flex flex-col gap-3">

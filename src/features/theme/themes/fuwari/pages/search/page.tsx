@@ -91,7 +91,7 @@ export function SearchPage({
         {results.map((result, _index) => (
           <button
             key={result.post.id}
-            onClick={() => onSelectPost(result.post.slug)}
+            onClick={() => onSelectPost(result.post)}
             className="fuwari-card-base p-6 text-left w-full group hover:-translate-y-1 hover:shadow-lg transition-all duration-300 flex flex-col gap-3 outline-none focus-visible:ring-2 focus-visible:ring-(--fuwari-primary)/50"
           >
             {/* Title with highlighting */}

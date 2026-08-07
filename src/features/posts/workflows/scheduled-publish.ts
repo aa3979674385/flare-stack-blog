@@ -30,7 +30,7 @@ export class ScheduledPublishWorkflow extends WorkflowEntrypoint<Env, Params> {
     if (!post || post.status !== "published") return;
 
     await step.do("invalidate caches", async () => {
-      await invalidatePostCaches(this.env, post.slug);
+      await invalidatePostCaches(this.env, post);
     });
 
     await step.do("update search index", async () => {

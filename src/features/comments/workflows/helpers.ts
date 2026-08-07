@@ -4,6 +4,7 @@ import { generateUnsubscribeToken } from "@/features/email/email.utils";
 import { publishNotificationEvent } from "@/features/notification/service/notification.publisher";
 import { convertToPlainText } from "@/features/posts/utils/content";
 import { serverEnv } from "@/lib/env/server.env";
+import { postPath } from "@/lib/post-url";
 
 interface SendReplyNotificationParams {
   comment: {
@@ -81,7 +82,7 @@ export async function sendReplyNotification(
 
   // Build URL with comment anchor and query params for direct navigation
   const rootId = comment.rootId ?? comment.id;
-  const commentUrl = `https://${DOMAIN}/post/${post.slug}?highlightCommentId=${comment.id}&rootId=${rootId}#comment-${comment.id}`;
+  const commentUrl = `https://${DOMAIN}${postPath(post)}?highlightCommentId=${comment.id}&rootId=${rootId}#comment-${comment.id}`;
 
   try {
     await publishNotificationEvent(

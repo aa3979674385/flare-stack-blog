@@ -5,6 +5,7 @@ import {
 } from "@/features/posts/data/posts.data";
 import { buildFeed } from "@/features/posts/utils/feed";
 import { getDb } from "@/lib/db";
+import { postPath } from "@/lib/post-url";
 
 export const SITE_DOCUMENT_CACHE_CONTROL = {
   feed: "public, max-age=3600, s-maxage=3600",
@@ -129,7 +130,7 @@ export async function buildSitemapXml(env: Env) {
 
       return `
   <url>
-    <loc>https://${env.DOMAIN}/post/${encodeURIComponent(post.slug)}</loc>
+    <loc>https://${env.DOMAIN}${postPath(post)}</loc>
     ${lastModifiedAt ? `<lastmod>${lastModifiedAt}</lastmod>` : ""}
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>

@@ -10,6 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ExpandableContent } from "@/features/theme/themes/default/components/comments/view/expandable-content";
 import type { CommentStatus } from "@/lib/db/schema";
 import { formatDate } from "@/lib/utils";
+import { postSegment } from "@/lib/post-url";
 import { m } from "@/paraglide/messages";
 import { useAdminComments } from "../../hooks/use-comments";
 import { allCommentsQuery, COMMENTS_KEYS } from "../../queries";
@@ -291,7 +292,7 @@ export const CommentModerationTable = ({
                   {comment.post && (
                     <Link
                       to="/post/$slug"
-                      params={{ slug: comment.post.slug || "" }}
+                      params={{ slug: postSegment(comment.post) }}
                       hash={`comment-${comment.id}`}
                       search={{
                         highlightCommentId: comment.id,
@@ -385,7 +386,7 @@ export const CommentModerationTable = ({
                 {comment.post && (
                   <Link
                     to="/post/$slug"
-                    params={{ slug: comment.post.slug || "" }}
+                    params={{ slug: postSegment(comment.post) }}
                     hash={`comment-${comment.id}`}
                     search={{
                       highlightCommentId: comment.id,

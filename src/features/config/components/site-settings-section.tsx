@@ -74,6 +74,20 @@ export function SiteSettingsSection() {
             placeholder={m.settings_site_field_description_ph()}
           />
         </Field>
+        <Field
+          label="文章链接格式"
+          hint="决定文章页 URL 形态。切换后全站文章链接会一起变化（无后缀 / .html 后缀 / 按文章 ID），已收录的旧链接仍可正常访问。"
+          error={errors.site?.postUrlSuffix?.message}
+        >
+          <select
+            {...register("site.postUrlSuffix")}
+            className="flex h-9 w-full rounded-none border-b border-input bg-transparent px-0 py-1 text-sm transition-all focus-visible:outline-hidden focus-visible:border-foreground focus-visible:ring-0"
+          >
+            <option value="none">无后缀（/post/文章别名）</option>
+            <option value="html">.html 后缀（/post/文章别名.html）</option>
+            <option value="id">按文章 ID（/post/123.html）</option>
+          </select>
+        </Field>
       </SectionShell>
 
       <SectionShell

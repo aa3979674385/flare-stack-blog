@@ -65,7 +65,7 @@ export function SearchPage({
           return (
             <div
               key={result.post.id}
-              onClick={() => onSelectPost(result.post.slug)}
+              onClick={() => onSelectPost(result.post)}
               className="group relative cursor-pointer p-4 -mx-4 transition-all duration-300 rounded-lg hover:bg-muted/10"
             >
               <div className="flex flex-col gap-2">

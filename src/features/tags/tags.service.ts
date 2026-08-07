@@ -2,6 +2,7 @@ import { z } from "zod";
 import * as CacheService from "@/features/cache/cache.service";
 import * as PostRepo from "@/features/posts/data/posts.data";
 import { POSTS_CACHE_KEYS } from "@/features/posts/schema/posts.schema";
+import { postPath } from "@/lib/post-url";
 import * as PostAutoSnapshotService from "@/features/posts/services/post-auto-snapshot.service";
 import * as TagRepo from "@/features/tags/data/tags.data";
 import type {
@@ -135,7 +136,7 @@ async function invalidateTagRelatedCache(
     // Purge CDN for affected posts and list pages
     const cdnUrls = ["/", "/posts"];
     for (const post of affectedPosts) {
-      cdnUrls.push(`/post/${post.slug}`);
+      cdnUrls.push(postPath(post));
     }
     tasks.push(purgeCDNCache(context.env, { urls: cdnUrls }));
 

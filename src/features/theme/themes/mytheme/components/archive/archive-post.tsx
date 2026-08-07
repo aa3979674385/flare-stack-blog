@@ -1,6 +1,7 @@
 import { ClientOnly, Link } from "@tanstack/react-router";
 import type { PostItem } from "@/features/posts/schema/posts.schema";
 import { m } from "@/paraglide/messages";
+import { postSegment } from "@/lib/post-url";
 
 interface ArchivePostProps {
   post: PostItem;
@@ -12,7 +13,7 @@ export function ArchivePost({ post }: ArchivePostProps) {
   return (
     <Link
       to="/post/$slug"
-      params={{ slug: post.slug }}
+      params={{ slug: postSegment(post) }}
       className="group block! h-10 w-full rounded-lg hover:bg-(--fuwari-btn-plain-bg-hover) active:bg-(--fuwari-btn-plain-bg-active) transition-colors"
       aria-label={post.title}
     >

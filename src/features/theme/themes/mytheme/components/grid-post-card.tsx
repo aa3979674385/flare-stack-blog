@@ -2,6 +2,7 @@ import { Link, useRouteContext } from "@tanstack/react-router";
 import { Calendar, Crown, Folder, ImageIcon, Lock, Unlock, User } from "lucide-react";
 import type { PostItem } from "@/features/posts/schema/posts.schema";
 import { formatDate } from "@/lib/utils";
+import { postSegment } from "@/lib/post-url";
 
 interface GridPostCardProps {
   post: PostItem;
@@ -47,7 +48,7 @@ export function GridPostCard({ post }: GridPostCardProps) {
 
   const postLink = {
     to: "/post/$slug" as const,
-    params: { slug: post.slug },
+    params: { slug: postSegment(post) },
   };
 
   return (

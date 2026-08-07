@@ -28,6 +28,6 @@ export interface SearchPageProps {
   results: Array<SearchResultItem>;
   isSearching: boolean;
   onQueryChange: (query: string) => void;
-  onSelectPost: (slug: string) => void;
+  onSelectPost: (post: { id: string | number; slug: string }) => void;
   onBack: () => void;
 }

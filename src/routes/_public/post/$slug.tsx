@@ -12,7 +12,7 @@ import {
   buildCanonicalUrl,
   canonicalLink,
 } from "@/lib/seo";
-import { getPostUrlSuffix, postPath, type PostUrlMode } from "@/lib/post-url";
+import { getPostUrlSuffix, postPath } from "@/lib/post-url";
 
 const searchSchema = z.object({
   highlightCommentId: z.coerce.number().optional(),
@@ -22,43 +22,50 @@ const searchSchema = z.object({
 const { relatedPostsLimit } = theme.config.post;
 
 /**
- * 按当前 URL 模式加载文章：
- *  - "id" 模式：优先按数字 id 取，取不到再退回到 slug（保证旧链接 / 已收录页面仍可用）
- *  - 其它模式：按 slug 取；若段落是数字（如会员中心用 postId 拼的链接），退回到按 id 取
+ * 主查询解析：loader 与组件必须共用同一份逻辑，保证客户端水合命中同一份缓存，
+ * 否则会出现「loader 预取的是 slug 查询、组件却按 id 查询」的 key 不一致 → 404 / 崩溃。
+ *  - "id" 模式且段落为数字：按 id 取
+ *  - 其它情况（none / html，或 id 模式下的旧 slug 链接）：按 slug 取
  * 段落末尾的 .html 在这里统一剥掉。
+ */
+function primaryPostQuery(segment: string) {
+  const clean = segment.replace(/\.html$/i, "");
+  const idNum = Number(clean);
+  const isNumeric = Number.isInteger(idNum) && idNum > 0;
+  const mode = getPostUrlSuffix();
+  if (mode === "id" && isNumeric) return postByIdQuery(idNum);
+  return postBySlugQuery(clean);
+}
+
+/**
+ * 按当前 URL 模式加载文章。
+ * 主查询与 primaryPostQuery 完全一致；当 html/none 模式下数字段落按 slug 取不到时，
+ * 再退回按 id 取（兼容旧的 id 形式链接），并把结果写回 slug 查询缓存，
+ * 这样组件（始终走 slug 查询 key）也能拿到数据，不会水合失败。
  */
 async function loadPostBySegment(
   queryClient: QueryClient,
   segment: string,
-  mode: PostUrlMode,
 ): Promise<PostWithToc | null> {
   const clean = segment.replace(/\.html$/i, "");
   const idNum = Number(clean);
   const isNumeric = Number.isInteger(idNum) && idNum > 0;
+  const mode = getPostUrlSuffix();
 
-  if (mode === "id") {
-    if (isNumeric) {
-      const byId = await queryClient
-        .ensureQueryData(postByIdQuery(idNum))
-        .catch(() => null);
-      if (byId) return byId as PostWithToc;
+  const post = (await queryClient
+    .ensureQueryData(primaryPostQuery(segment))
+    .catch(() => null)) as PostWithToc | null;
+  if (post) return post;
+
+  // html/none 模式：slug 没命中时退回按 id 取，并把结果镜像到 slug key
+  if (mode !== "id" && isNumeric) {
+    const byId = (await queryClient
+      .ensureQueryData(postByIdQuery(idNum))
+      .catch(() => null)) as PostWithToc | null;
+    if (byId) {
+      queryClient.setQueryData(postBySlugQuery(clean).queryKey, byId);
+      return byId;
     }
-    return (
-      (await queryClient.ensureQueryData(postBySlugQuery(clean)).catch(() => null)) ??
-      null
-    );
-  }
-
-  const bySlug = await queryClient
-    .ensureQueryData(postBySlugQuery(clean))
-    .catch(() => null);
-  if (bySlug) return bySlug;
-  if (isNumeric) {
-    return (
-      (await queryClient.ensureQueryData(postByIdQuery(idNum)).catch(() => null)) as
-        | PostWithToc
-        | null ?? null
-    );
   }
   return null;
 }
@@ -67,11 +74,9 @@ export const Route = createFileRoute("/_public/post/$slug")({
   validateSearch: searchSchema,
   component: RouteComponent,
   loader: async ({ context, params }) => {
-    const mode = getPostUrlSuffix();
-
     // 1. Critical: Main post data - use serverFn (executes directly on server, no HTTP)
     const [post, domain, siteConfig] = await Promise.all([
-      loadPostBySegment(context.queryClient, params.slug, mode),
+      loadPostBySegment(context.queryClient, params.slug),
       context.queryClient.ensureQueryData(siteDomainQuery),
       context.queryClient.ensureQueryData(siteConfigQuery),
       // 热门文章：SSR 预取，整页刷新时客户端直接水合、不再重新请求后端
@@ -135,14 +140,8 @@ export const Route = createFileRoute("/_public/post/$slug")({
 
 function RouteComponent() {
   const { slug } = Route.useParams();
-  const clean = slug.replace(/\.html$/i, "");
-  const idNum = Number(clean);
-  const isNumeric = Number.isInteger(idNum) && idNum > 0;
-  // 与 loader 的解析保持一致（保证客户端水合命中同一份缓存，避免二次请求 404）：
-  // 段落是数字 → 按 id 取（会员中心等用 postId 拼的链接、以及 id 模式下的 URL）；
-  // 其余 → 按 slug 取（none / html 模式、以及 id 模式下旧链接用 slug 访问）。
-  // 这里不需要按 mode 区分——数字段落无论在哪种模式下都该命中 id 查询。
-  const postQuery = isNumeric ? postByIdQuery(idNum) : postBySlugQuery(clean);
+  // 与 loader 共用同一份解析逻辑（primaryPostQuery），保证水合命中同一缓存 key
+  const postQuery = primaryPostQuery(slug);
   const { data: post } = useSuspenseQuery(postQuery);
 
   useEffect(() => {

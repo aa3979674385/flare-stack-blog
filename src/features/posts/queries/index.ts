@@ -2,6 +2,7 @@ import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import type {
   GetPostsCountInput,
   GetPostsInput,
+  PostWithToc,
 } from "@/features/posts/schema/posts.schema";
 import {
   normalizePostTagName,
@@ -12,6 +13,7 @@ import {
 } from "@/features/posts/schema/posts.schema";
 import { apiClient } from "@/lib/api-client";
 import { isSSR } from "@/lib/utils";
+import { generateTableOfContents } from "@/features/posts/utils/toc";
 import {
   getPostRevisionFn,
   listPostRevisionsFn,
@@ -213,7 +215,16 @@ export function postBySlugQuery(slug: string) {
 export function postByIdQuery(id: number) {
   return queryOptions({
     queryKey: POSTS_KEYS.detail(id),
-    queryFn: () => findPostByIdFn({ data: { id } }),
+    queryFn: async () => {
+      const res = await findPostByIdFn({ data: { id } });
+      if (!res) return null;
+      // findPostById 不返回 toc，这里补齐成 PostWithToc，保证详情页目录正常
+      return {
+        ...PostWithTocSchema.parse({ ...res, toc: generateTableOfContents(res.contentJson) }),
+        isSynced: res.isSynced,
+        hasPublicCache: res.hasPublicCache,
+      } as PostWithToc & { isSynced: boolean; hasPublicCache: boolean };
+    },
   });
 }
 

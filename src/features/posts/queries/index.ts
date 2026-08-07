@@ -21,6 +21,7 @@ import {
 import { findPostByIdFn } from "../api/posts.admin.api";
 import {
   findPostBySlugFn,
+  findPostByIdPublicFn,
   getPinnedPostsFn,
   getPopularPostsFn,
   getPostsCursorFn,
@@ -238,6 +239,44 @@ export function postByIdQuery(id: number) {
         } as PostWithToc & { isSynced: boolean; hasPublicCache: boolean };
       }
       // 客户端走公开 API（与 postBySlugQuery 一致，匿名可读），不走需登录的 admin serverFn
+      const res = await apiClient.post["by-id"][":id"].$get({
+        param: { id: String(id) },
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+      return {
+        ...PostWithTocSchema.parse({
+          ...data,
+          toc: generateTableOfContents(data.contentJson),
+        }),
+        isSynced: data.isSynced,
+        hasPublicCache: data.hasPublicCache,
+      } as PostWithToc & { isSynced: boolean; hasPublicCache: boolean };
+    },
+  });
+}
+
+/**
+ * 公开版「按 id 取文章」查询，供前台详情页 id 模式使用。
+ *  - SSR 走无鉴权的 findPostByIdPublicFn（仅已发布），匿名访客整页刷新也能拿到数据。
+ *  - 客户端走公开 API /api/post/by-id/:id（匿名可读），与 postBySlugQuery 一致。
+ *  - queryKey 与 postByIdQuery 同为 POSTS_KEYS.detail(id)，保证 loader(SSR)/组件(客户端) 水合命中同一份缓存。
+ *
+ * 注意：编辑器（edit.$id.tsx）仍用带鉴权的 postByIdQuery，以允许管理员加载草稿，不要混用。
+ */
+export function postByIdPublicQuery(id: number) {
+  return queryOptions({
+    queryKey: POSTS_KEYS.detail(id),
+    queryFn: async () => {
+      if (isSSR) {
+        const res = await findPostByIdPublicFn({ data: { id } });
+        if (!res) return null;
+        return {
+          ...PostWithTocSchema.parse({ ...res, toc: generateTableOfContents(res.contentJson) }),
+          isSynced: res.isSynced,
+          hasPublicCache: res.hasPublicCache,
+        } as PostWithToc & { isSynced: boolean; hasPublicCache: boolean };
+      }
       const res = await apiClient.post["by-id"][":id"].$get({
         param: { id: String(id) },
       });

@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import * as PageviewService from "@/features/pageview/service/pageview.service";
 import {
+  FindPostByIdInputSchema,
   FindPostBySlugInputSchema,
   FindRelatedPostsInputSchema,
   GetPostsCursorInputSchema,
@@ -29,6 +30,18 @@ export const findPostBySlugFn = createServerFn()
   .inputValidator(FindPostBySlugInputSchema)
   .handler(async ({ data, context }) => {
     return await PostService.findPostBySlug(context, data);
+  });
+
+// 公开「按 id 取文章」serverFn：仅 dbMiddleware，无 requirePermission。
+// 供详情页 id 模式的 SSR 使用，使匿名访客整页刷新也能拿到已发布文章（不再走需登录的 admin 接口）。
+// 未发布 / 草稿直接返回 null（公开页应 404），避免泄露未公开内容。
+export const findPostByIdPublicFn = createServerFn()
+  .middleware([dbMiddleware])
+  .inputValidator(FindPostByIdInputSchema)
+  .handler(async ({ data, context }) => {
+    const post = await PostService.findPostById(context, data);
+    if (!post || post.status !== "published") return null;
+    return post;
   });
 
 export const getRelatedPostsFn = createServerFn()

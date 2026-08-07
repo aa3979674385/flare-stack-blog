@@ -5,7 +5,7 @@ import { useEffect } from "react";
 import { z } from "zod";
 import { siteConfigQuery, siteDomainQuery } from "@/features/config/queries";
 import { recordPageViewFn } from "@/features/pageview/api/pageview.api";
-import { postBySlugQuery, relatedPostsQuery, popularPostsQuery, postByIdQuery } from "@/features/posts/queries";
+import { postBySlugQuery, relatedPostsQuery, popularPostsQuery, postByIdPublicQuery } from "@/features/posts/queries";
 import type { PostWithToc } from "@/features/posts/schema/posts.schema";
 import {
   buildArticleJsonLd,
@@ -34,7 +34,7 @@ function primaryPostQuery(segment: string) {
   const clean = segment.replace(/\.html$/i, "");
   const idNum = Number(clean);
   const isNumeric = Number.isInteger(idNum) && idNum > 0;
-  if (isNumeric) return postByIdQuery(idNum);
+  if (isNumeric) return postByIdPublicQuery(idNum);
   return postBySlugQuery(clean);
 }
 
@@ -65,7 +65,7 @@ async function loadPostBySegment(
         () => null,
       )) as (PostWithToc & { isSynced: boolean; hasPublicCache: boolean }) | null;
     if (bySlug) {
-      queryClient.setQueryData(postByIdQuery(idNum).queryKey, bySlug);
+      queryClient.setQueryData(postByIdPublicQuery(idNum).queryKey, bySlug);
       return bySlug;
     }
   }

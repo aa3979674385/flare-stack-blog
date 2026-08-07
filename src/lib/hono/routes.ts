@@ -5,6 +5,7 @@ import { proxy } from "hono/proxy";
 import { exportDownloadRoute } from "@/features/import-export/api/hono/download.route";
 import { handleImageRequest } from "@/features/media/service/media.service";
 import postsDetailRoute from "@/features/posts/api/hono/posts.detail.route";
+import postsDetailByIdRoute from "@/features/posts/api/hono/posts.detail-by-id.route";
 import postsListRoute from "@/features/posts/api/hono/posts.list.route";
 import postsRelatedRoute from "@/features/posts/api/hono/posts.related.route";
 import searchRoute from "@/features/search/api/hono/search.route";
@@ -34,8 +35,10 @@ async function forwardAuthRequest(c: Context<{ Bindings: Env }>) {
 /* ================================ Public API ================================ */
 
 // Public API routes with RPC support - 链式调用保留类型推断
+// 注意：by-id 必须挂在 slug 详情路由（/:slug）之前，否则 /api/post/by-id 会被 /:slug 抢先匹配成 slug="by-id"
 const publicApi = new Hono<{ Bindings: Env }>()
   .route("/posts", postsListRoute)
+  .route("/post/by-id", postsDetailByIdRoute)
   .route("/post", postsDetailRoute)
   .route("/post", postsRelatedRoute)
   .route("/tags", tagsRoute)

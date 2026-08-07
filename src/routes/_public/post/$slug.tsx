@@ -12,7 +12,7 @@ import {
   buildCanonicalUrl,
   canonicalLink,
 } from "@/lib/seo";
-import { getPostUrlSuffix, postPath } from "@/lib/post-url";
+import { postPath } from "@/lib/post-url";
 
 const searchSchema = z.object({
   highlightCommentId: z.coerce.number().optional(),
@@ -22,26 +22,26 @@ const searchSchema = z.object({
 const { relatedPostsLimit } = theme.config.post;
 
 /**
- * 主查询解析：loader 与组件必须共用同一份逻辑，保证客户端水合命中同一份缓存，
- * 否则会出现「loader 预取的是 slug 查询、组件却按 id 查询」的 key 不一致 → 404 / 崩溃。
- *  - "id" 模式且段落为数字：按 id 取
- *  - 其它情况（none / html，或 id 模式下的旧 slug 链接）：按 slug 取
- * 段落末尾的 .html 在这里统一剥掉。
+ * 主查询解析：loader 与组件必须共用同一份逻辑，保证客户端水合命中同一份缓存 key。
+ *
+ * 关键修复：解析只依据「段落本身是否为数字」，不再依赖全局 currentMode 单例。
+ *  - 数字段落（/post/123.html）→ 只能来自 id 模式 → 走 postByIdQuery
+ *  - 非数字段落（/post/my-slug.html）→ 来自 slug 模式 → 走 postBySlugQuery
+ * 这样无论服务端还是客户端渲染，算出的 query key 完全一致，避免水合 key 不匹配导致的 404。
+ * 末尾 .html 在此统一剥掉。
  */
 function primaryPostQuery(segment: string) {
   const clean = segment.replace(/\.html$/i, "");
   const idNum = Number(clean);
   const isNumeric = Number.isInteger(idNum) && idNum > 0;
-  const mode = getPostUrlSuffix();
-  if (mode === "id" && isNumeric) return postByIdQuery(idNum);
+  if (isNumeric) return postByIdQuery(idNum);
   return postBySlugQuery(clean);
 }
 
 /**
- * 按当前 URL 模式加载文章。
- * 主查询与 primaryPostQuery 完全一致；当 html/none 模式下数字段落按 slug 取不到时，
- * 再退回按 id 取（兼容旧的 id 形式链接），并把结果写回 slug 查询缓存，
- * 这样组件（始终走 slug 查询 key）也能拿到数据，不会水合失败。
+ * 按当前段落加载文章。主查询与 primaryPostQuery 完全一致（确定性，与服务端/组件共用）。
+ * 数字段落按 id 取不到时，再退回按 slug 取一次（兼容极老的纯数字 slug 链接），
+ * 并把结果镜像到 id 查询缓存，保证组件始终能命中同一 key。
  */
 async function loadPostBySegment(
   queryClient: QueryClient,
@@ -50,21 +50,23 @@ async function loadPostBySegment(
   const clean = segment.replace(/\.html$/i, "");
   const idNum = Number(clean);
   const isNumeric = Number.isInteger(idNum) && idNum > 0;
-  const mode = getPostUrlSuffix();
 
+  // 主解析：数字→id，非数字→slug（确定性，服务端/客户端一致）
   const post = (await queryClient
     .ensureQueryData(primaryPostQuery(segment))
     .catch(() => null)) as PostWithToc | null;
   if (post) return post;
 
-  // html/none 模式：slug 没命中时退回按 id 取，并把结果镜像到 slug key
-  if (mode !== "id" && isNumeric) {
-    const byId = (await queryClient
-      .ensureQueryData(postByIdQuery(idNum))
-      .catch(() => null)) as PostWithToc | null;
-    if (byId) {
-      queryClient.setQueryData(postBySlugQuery(clean).queryKey, byId);
-      return byId;
+  // 兜底：数字段落按 id 取不到时，再试一次 slug（兼容极老的纯数字 slug 链接）
+  if (isNumeric) {
+    const bySlug = (await queryClient
+      .ensureQueryData(postBySlugQuery(clean))
+      .catch(
+        () => null,
+      )) as (PostWithToc & { isSynced: boolean; hasPublicCache: boolean }) | null;
+    if (bySlug) {
+      queryClient.setQueryData(postByIdQuery(idNum).queryKey, bySlug);
+      return bySlug;
     }
   }
   return null;

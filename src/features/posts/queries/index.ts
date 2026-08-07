@@ -203,11 +203,22 @@ export function postBySlugQuery(slug: string) {
     queryKey: POSTS_KEYS.detail(slug),
     queryFn: async () => {
       if (isSSR) {
-        return await findPostBySlugFn({ data: { slug } });
+        const res = await findPostBySlugFn({ data: { slug } });
+        if (!res) return null;
+        // 与 postByIdQuery 返回同一类型，确保详情页 primaryPostQuery 的两侧缓存 key/类型一致
+        return { ...res, isSynced: true, hasPublicCache: true } as PostWithToc & {
+          isSynced: boolean;
+          hasPublicCache: boolean;
+        };
       }
       const res = await apiClient.post[":slug"].$get({ param: { slug } });
       if (!res.ok) throw new Error("Failed to fetch post");
-      return PostWithTocSchema.parse(await res.json());
+      const data = await res.json();
+      return {
+        ...PostWithTocSchema.parse(data),
+        isSynced: true,
+        hasPublicCache: true,
+      } as PostWithToc & { isSynced: boolean; hasPublicCache: boolean };
     },
   });
 }
@@ -216,13 +227,29 @@ export function postByIdQuery(id: number) {
   return queryOptions({
     queryKey: POSTS_KEYS.detail(id),
     queryFn: async () => {
-      const res = await findPostByIdFn({ data: { id } });
-      if (!res) return null;
-      // findPostById 不返回 toc，这里补齐成 PostWithToc，保证详情页目录正常
+      if (isSSR) {
+        const res = await findPostByIdFn({ data: { id } });
+        if (!res) return null;
+        // findPostById 不返回 toc，这里补齐成 PostWithToc，保证详情页目录正常
+        return {
+          ...PostWithTocSchema.parse({ ...res, toc: generateTableOfContents(res.contentJson) }),
+          isSynced: res.isSynced,
+          hasPublicCache: res.hasPublicCache,
+        } as PostWithToc & { isSynced: boolean; hasPublicCache: boolean };
+      }
+      // 客户端走公开 API（与 postBySlugQuery 一致，匿名可读），不走需登录的 admin serverFn
+      const res = await apiClient.post["by-id"][":id"].$get({
+        param: { id: String(id) },
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
       return {
-        ...PostWithTocSchema.parse({ ...res, toc: generateTableOfContents(res.contentJson) }),
-        isSynced: res.isSynced,
-        hasPublicCache: res.hasPublicCache,
+        ...PostWithTocSchema.parse({
+          ...data,
+          toc: generateTableOfContents(data.contentJson),
+        }),
+        isSynced: data.isSynced,
+        hasPublicCache: data.hasPublicCache,
       } as PostWithToc & { isSynced: boolean; hasPublicCache: boolean };
     },
   });

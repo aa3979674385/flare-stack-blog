@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import type { PublicLayoutProps } from "@/features/theme/contract/layouts";
-import { postBySlugQuery } from "@/features/posts/queries";
+import { postBySlugQuery, postByIdPublicQuery } from "@/features/posts/queries";
 import { SidebarDownloadBox } from "@/features/post-resources/components/public/sidebar-download-box";
 import { HotPosts } from "../components/hot-posts";
 import { PopupModal } from "@/features/popup/components/popup-modal";
@@ -51,13 +51,17 @@ export function PublicLayout({
       : "lg:grid-cols-[17.5rem_1fr]";
   const sidebarOrder = isPostPage ? "order-2 lg:order-2" : "order-2 lg:order-1";
   const mainOrder = isPostPage ? "order-1 lg:order-1" : "order-1 lg:order-2";
-  // 详情页：从 URL 解析 slug 取 post，供侧边栏下载模块使用
-  // 注意去掉可能的 .html 后缀（后台 URL 模式为 html / id 时路径形如 /post/{slug}.html 或 /post/{id}.html）
+  // 详情页：从 URL 解析段落取 post，供侧边栏下载模块使用。
+  // 后台 URL 模式为 html / id 时路径形如 /post/{slug}.html 或 /post/{id}.html；
+  // 段落为数字时走「按 id 取」（id 模式），否则按 slug 取——与详情页 $slug.tsx 的解析逻辑一致，
+  // 否则 id 模式下用 "123" 当 slug 去查会查不到，导致桌面端下载模块不渲染。
   const rawSegment = isPostPage ? pathname.slice("/post/".length) : "";
-  const postSlug = rawSegment.replace(/\.html$/i, "");
+  const segment = rawSegment.replace(/\.html$/i, "");
+  const idNum = Number(segment);
+  const isNumeric = Number.isInteger(idNum) && idNum > 0;
   const { data: sidebarPost } = useQuery({
-    ...postBySlugQuery(postSlug),
-    enabled: isPostPage && postSlug.length > 0,
+    ...(isNumeric ? postByIdPublicQuery(idNum) : postBySlugQuery(segment)),
+    enabled: isPostPage && segment.length > 0,
   });
 
   return (

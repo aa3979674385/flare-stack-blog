@@ -1,5 +1,7 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
+import { useEffect } from "react";
 import type { QueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import {
   createRootRouteWithContext,
   HeadContent,
@@ -136,6 +138,15 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
 function RootDocument({ children }: { children: React.ReactNode }) {
   const locale = getLocale();
   const { siteConfig } = useRouteContext({ from: "__root__" });
+
+  // 客户端自愈：siteConfig 就绪 / 刷新后重新套用文章 URL 模式。
+  // 根 beforeLoad 只在首次加载跑一次，若首屏那一刻配置未到（或匿名用户拿到的是 CDN 缓存的旧 HTML，
+  // 脱水写入的是旧模式），模式会锁死在默认 html，导致「登录态显示 id、匿名态显示标题」这类不一致。
+  // 这里只要 siteConfig 数据变化就重新 setPostUrlSuffix，<Link> 生成 href 时会重渲染到正确模式。
+  const { data: liveConfig } = useQuery(siteConfigQuery);
+  useEffect(() => {
+    setPostUrlSuffix((liveConfig ?? siteConfig)?.postUrlSuffix ?? "html");
+  }, [liveConfig, siteConfig]);
 
   return (
     <html

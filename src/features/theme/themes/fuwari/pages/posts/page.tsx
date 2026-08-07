@@ -1,0 +1,124 @@
+import { useRouteContext } from "@tanstack/react-router";
+import { useState } from "react";
+import type { PostsPageProps } from "@/features/theme/contract/pages";
+import { Pagination } from "@/features/theme/components/pagination";
+import { PostItem } from "@/features/theme/themes/default/components/post-item";
+import { cn } from "@/lib/utils";
+import { m } from "@/paraglide/messages";
+
+export const INITIAL_TAG_COUNT = 8;
+
+export function PostsPage({
+  posts,
+  tags,
+  selectedTag,
+  onTagClick,
+  page,
+  totalPages,
+  onPageChange,
+}: PostsPageProps) {
+  const { siteConfig } = useRouteContext({ from: "__root__" });
+  const [isExpanded, setIsExpanded] = useState(false);
+  const hasMoreTags = tags.length > INITIAL_TAG_COUNT;
+  const visibleTags = isExpanded ? tags : tags.slice(0, INITIAL_TAG_COUNT);
+
+  return (
+    <div className="w-full max-w-3xl mx-auto pb-20 px-6 md:px-0">
+      {/* Header Section */}
+      <header className="py-12 md:py-20 space-y-6">
+        <h1 className="text-4xl md:text-5xl font-serif font-medium tracking-tight text-foreground">
+          {m.nav_posts()}
+        </h1>
+        <p className="max-w-xl text-base md:text-lg font-light text-muted-foreground leading-relaxed">
+          {siteConfig.description}
+        </p>
+      </header>
+
+      {/* Tag Filters - Minimalist Text Chips */}
+      <div className="mb-12 space-y-4">
+        <div className="flex items-center gap-2 text-[10px] font-mono tracking-[0.2em] uppercase text-muted-foreground/50">
+          <span>{m.posts_tags_filter()}</span>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3">
+          <button
+            onClick={() => onTagClick(undefined)}
+            className={cn(
+              "text-sm font-mono transition-all duration-300 relative group",
+              !selectedTag
+                ? "text-foreground font-medium"
+                : "text-muted-foreground hover:text-foreground/80",
+            )}
+          >
+            {m.posts_all()}
+            <span
+              className={cn(
+                "absolute -bottom-1 left-0 h-px bg-foreground transition-all duration-300",
+                !selectedTag ? "w-full" : "w-0 group-hover:w-full",
+              )}
+            />
+          </button>
+
+          {visibleTags.map((tag) => (
+            <button
+              key={tag.id}
+              onClick={() => onTagClick(tag.name)}
+              className={cn(
+                "text-sm font-mono transition-all duration-300 relative group flex items-baseline gap-1.5",
+                selectedTag === tag.name
+                  ? "text-foreground font-medium"
+                  : "text-muted-foreground hover:text-foreground/80",
+              )}
+            >
+              <span>{tag.name}</span>
+              <span className="text-[10px] opacity-40 group-hover:opacity-70 transition-opacity">
+                {tag.postCount}
+              </span>
+              <span
+                className={cn(
+                  "absolute -bottom-1 left-0 h-px bg-foreground transition-all duration-300",
+                  selectedTag === tag.name
+                    ? "w-full"
+                    : "w-0 group-hover:w-full",
+                )}
+              />
+            </button>
+          ))}
+
+          {hasMoreTags && (
+            <button
+              onClick={() => setIsExpanded(!isExpanded)}
+              className="text-xs font-mono text-muted-foreground/50 hover:text-foreground transition-colors ml-2"
+            >
+              {isExpanded
+                ? `[- ${m.tags_collapse()}]`
+                : `[+ ${m.tags_expand()} ${tags.length - INITIAL_TAG_COUNT}]`}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Posts List - Clean Divide */}
+      <div className="flex flex-col gap-0 border-t border-border/40">
+        {posts.length === 0 ? (
+          <div className="py-20 text-left">
+            <p className="font-serif text-xl text-muted-foreground/50">
+              {m.posts_no_posts()}
+            </p>
+          </div>
+        ) : (
+          posts.map((post) => <PostItem key={post.id} post={post} />)
+        )}
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={onPageChange}
+        />
+      )}
+    </div>
+  );
+}

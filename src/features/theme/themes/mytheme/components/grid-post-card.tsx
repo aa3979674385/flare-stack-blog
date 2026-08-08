@@ -52,7 +52,7 @@ export function GridPostCard({ post }: GridPostCardProps) {
   };
 
   return (
-    <div className="group flex flex-col gap-3 rounded-2xl bg-(--fuwari-card-bg) p-3 transition hover:-translate-y-1 hover:shadow-lg">
+    <div className="group fuwari-card-base flex flex-col gap-3 rounded-2xl p-3 transition hover:-translate-y-1 hover:shadow-lg">
       {/* 封面图容器（置顶角标 / 分类药丸），封面本身可点进文章 */}
       <div className="relative aspect-4/5 w-full overflow-hidden rounded-xl bg-(--fuwari-bg)">
         <Link
@@ -67,8 +67,9 @@ export function GridPostCard({ post }: GridPostCardProps) {
               className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center text-(--fuwari-meta)">
-              <ImageIcon size={48} strokeWidth={1.2} />
+            <div className="flex h-full w-full flex-col items-center justify-center gap-2 bg-gradient-to-br from-(--fuwari-primary)/10 to-(--fuwari-primary)/5 text-(--fuwari-meta)">
+              <ImageIcon size={40} strokeWidth={1.2} className="opacity-40" />
+              <span className="text-xs font-medium opacity-60">暂无封面</span>
             </div>
           )}
         </Link>

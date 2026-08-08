@@ -33,6 +33,46 @@ export function Field({
   );
 }
 
+export function ColorField({
+  name,
+  label,
+  hint,
+  error,
+}: {
+  name: FieldPath<SystemConfig>;
+  label: string;
+  hint?: string;
+  error?: string;
+}) {
+  const { control } = useFormContext<SystemConfig>();
+  const { field } = useController({ control, name });
+  const value = typeof field.value === "string" ? field.value : "";
+
+  return (
+    <Field label={label} hint={hint} error={error}>
+      <div className="flex items-center gap-3">
+        <input
+          ref={field.ref}
+          type="color"
+          value={value || "#000000"}
+          onBlur={field.onBlur}
+          onChange={(e) => field.onChange(e.target.value)}
+          aria-label={label}
+          className="h-10 w-16 shrink-0 cursor-pointer rounded-lg border border-border/40 bg-muted/20 p-1"
+        />
+        <input
+          type="text"
+          value={value}
+          onBlur={field.onBlur}
+          onChange={(e) => field.onChange(e.target.value)}
+          placeholder="#f6f6fb"
+          className="w-36 rounded-lg border border-border/40 bg-muted/20 px-3 py-2 text-sm font-mono text-foreground focus:outline-none focus:ring-2 focus:ring-(--fuwari-primary)"
+        />
+      </div>
+    </Field>
+  );
+}
+
 export function RangeField({
   name,
   label,

@@ -1,7 +1,7 @@
 import "@/features/theme/themes/fuwari/styles/preview.css";
 import { useFormContext, useWatch } from "react-hook-form";
 import { AssetUploadField } from "@/features/config/components/asset-upload-field";
-import { RangeField } from "@/features/config/components/site-settings-fields";
+import { ColorField, RangeField } from "@/features/config/components/site-settings-fields";
 import type { SystemConfig } from "@/features/config/config.schema";
 import {
   FUWARI_THEME_HUE_MAX,
@@ -115,6 +115,18 @@ export function FuwariThemeSettings() {
         error={errors.site?.theme?.fuwari?.primaryHue?.message}
       />
       <FuwariHuePreview />
+      <div className="grid gap-5 md:grid-cols-2">
+        <ColorField
+          name="site.theme.fuwari.footerBgLight"
+          label="页脚背景色（亮色模式）"
+          hint="站点在亮色/白天模式下页脚区域的背景色，支持十六进制颜色或 rgba()。"
+        />
+        <ColorField
+          name="site.theme.fuwari.footerBgDark"
+          label="页脚背景色（暗色模式）"
+          hint="站点在暗色/夜间模式下页脚区域的背景色，建议用半透明白色（如 rgba(255,255,255,0.04)）。"
+        />
+      </div>
     </>
   );
 }

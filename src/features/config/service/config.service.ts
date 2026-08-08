@@ -190,6 +190,12 @@ export function resolveSiteConfig(
         primaryHue:
           config?.site?.theme?.fuwari?.primaryHue ??
           blogConfig.theme.fuwari.primaryHue,
+        footerBgLight:
+          config?.site?.theme?.fuwari?.footerBgLight ??
+          blogConfig.theme.fuwari.footerBgLight,
+        footerBgDark:
+          config?.site?.theme?.fuwari?.footerBgDark ??
+          blogConfig.theme.fuwari.footerBgDark,
       },
       mytheme: {
         homeBg:
@@ -201,6 +207,12 @@ export function resolveSiteConfig(
         primaryHue:
           config?.site?.theme?.mytheme?.primaryHue ??
           blogConfig.theme.mytheme.primaryHue,
+        footerBgLight:
+          config?.site?.theme?.mytheme?.footerBgLight ??
+          blogConfig.theme.mytheme.footerBgLight,
+        footerBgDark:
+          config?.site?.theme?.mytheme?.footerBgDark ??
+          blogConfig.theme.mytheme.footerBgDark,
         recentPostsLimit:
           config?.site?.theme?.mytheme?.recentPostsLimit ??
           blogConfig.theme.mytheme.recentPostsLimit,

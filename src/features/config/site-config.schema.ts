@@ -251,6 +251,8 @@ function createFuwariThemeSiteConfigSchema() {
     homeBg: createBackgroundImageRefSchema(),
     avatar: createAssetRefSchema(),
     primaryHue: createHueSchema(),
+    footerBgLight: z.string().default("#f6f6fb"),
+    footerBgDark: z.string().default("rgba(255, 255, 255, 0.04)"),
   });
 }
 
@@ -259,6 +261,8 @@ function createFuwariThemeSiteConfigInputSchema() {
     homeBg: createBackgroundImageRefSchema().optional(),
     avatar: createAssetRefSchema().optional(),
     primaryHue: createHueSchema().optional(),
+    footerBgLight: z.string().optional(),
+    footerBgDark: z.string().optional(),
   });
 }
 
@@ -267,6 +271,8 @@ function createFuwariThemeSiteConfigInputFormSchema(messages: Messages) {
     homeBg: createBackgroundImageRefFormSchema(messages).optional(),
     avatar: createAssetRefFormSchema(messages).optional(),
     primaryHue: createHueFormSchema(messages).optional(),
+    footerBgLight: z.string().optional(),
+    footerBgDark: z.string().optional(),
   });
 }
 
@@ -371,6 +377,8 @@ function createMythemeThemeSiteConfigSchema() {
     homeBg: createBackgroundImageRefSchema(),
     avatar: createAssetRefSchema(),
     primaryHue: createHueSchema(),
+    footerBgLight: z.string().default("#f6f6fb"),
+    footerBgDark: z.string().default("rgba(255, 255, 255, 0.04)"),
     recentPostsLimit: z.number().int().min(1).max(100),
     homeCategoryStyle: z.enum(["tabs", "stacked"]),
     homeCategoryTabs: z.array(createMythemeHomeCategoryTabSchema()),
@@ -384,6 +392,8 @@ function createMythemeThemeSiteConfigInputSchema() {
     homeBg: createBackgroundImageRefSchema().optional(),
     avatar: createAssetRefSchema().optional(),
     primaryHue: createHueSchema().optional(),
+    footerBgLight: z.string().optional(),
+    footerBgDark: z.string().optional(),
     recentPostsLimit: z.number().int().min(1).max(100).optional(),
     homeCategoryStyle: z.enum(["tabs", "stacked"]).optional(),
     homeCategoryTabs: z
@@ -399,6 +409,8 @@ function createMythemeThemeSiteConfigInputFormSchema(messages: Messages) {
     homeBg: createBackgroundImageRefFormSchema(messages).optional(),
     avatar: createAssetRefFormSchema(messages).optional(),
     primaryHue: createHueFormSchema(messages).optional(),
+    footerBgLight: z.string().optional(),
+    footerBgDark: z.string().optional(),
     recentPostsLimit: z.number().int().min(1).max(100).optional(),
     homeCategoryStyle: z.enum(["tabs", "stacked"]).optional(),
     homeCategoryTabs: z

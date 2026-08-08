@@ -39,6 +39,8 @@
     --fuwari-input-border: rgba(0, 0, 0, 0.1);
     --fuwari-toc-btn-hover: oklch(0.926 0.015 var(--fuwari-hue));
     --fuwari-toc-btn-active: oklch(0.9 0.015 var(--fuwari-hue));
+    /* 页脚背景色（由后台设置注入 --fuwari-footer-bg-light / -dark） */
+    --fuwari-footer-bg: var(--fuwari-footer-bg-light, #f6f6fb);
   }
 
   .dark {
@@ -61,6 +63,8 @@
     --fuwari-input-border: rgba(255, 255, 255, 0.1);
     --fuwari-toc-btn-hover: oklch(0.22 0.02 var(--fuwari-hue));
     --fuwari-toc-btn-active: oklch(0.25 0.02 var(--fuwari-hue));
+    /* 暗色模式页脚背景色 */
+    --fuwari-footer-bg: var(--fuwari-footer-bg-dark, rgba(255, 255, 255, 0.04));
   }
 }
 

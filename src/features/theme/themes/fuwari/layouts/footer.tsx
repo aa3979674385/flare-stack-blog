@@ -18,7 +18,7 @@ export function Footer() {
   ];
 
   return (
-    <footer className="relative mt-20 border-t border-border/60 bg-(--fuwari-primary)/5 dark:bg-white/5">
+    <footer className="relative mt-20 border-t border-border/60 bg-(--fuwari-footer-bg)">
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-6 py-14 md:grid-cols-[200px_1fr_120px] md:gap-10">
         {/* 左侧：品牌区（窄/短） */}
         <div className="flex flex-col gap-3">

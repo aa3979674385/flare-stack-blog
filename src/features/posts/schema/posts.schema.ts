@@ -59,6 +59,7 @@ export const PostPagedResponseSchema = z.object({
 });
 export const PostWithTocSchema = PostSelectSchema.extend({
   tags: z.array(TagSelectSchema).optional(),
+  categories: z.array(CategorySelectSchema).optional(),
   toc: z.array(
     z.object({
       id: z.string(),

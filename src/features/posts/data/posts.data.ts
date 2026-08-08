@@ -622,7 +622,29 @@ export async function findPostById(db: DB, id: number) {
   // Flatten tags
   const tags = post.postTags.map((pt) => pt.tag);
   const { postTags, ...rest } = post;
-  return { ...rest, tags };
+
+  // Categories (single post)
+  const categoryRows = await db
+    .select({
+      category: {
+        id: CategoriesTable.id,
+        name: CategoriesTable.name,
+        description: CategoriesTable.description,
+        parentId: CategoriesTable.parentId,
+        sortOrder: CategoriesTable.sortOrder,
+        createdAt: CategoriesTable.createdAt,
+        updatedAt: CategoriesTable.updatedAt,
+      },
+    })
+    .from(PostCategoriesTable)
+    .innerJoin(
+      CategoriesTable,
+      eq(PostCategoriesTable.categoryId, CategoriesTable.id),
+    )
+    .where(eq(PostCategoriesTable.postId, post.id));
+  const categories = categoryRows.map((r) => r.category);
+
+  return { ...rest, tags, categories };
 }
 
 export async function findPinnedPosts(db: DB) {
@@ -722,7 +744,29 @@ export async function findPostBySlug(
   // Flatten tags
   const tags = post.postTags.map((pt) => pt.tag);
   const { postTags, ...rest } = post;
-  return { ...rest, tags };
+
+  // Categories (single post)
+  const categoryRows = await db
+    .select({
+      category: {
+        id: CategoriesTable.id,
+        name: CategoriesTable.name,
+        description: CategoriesTable.description,
+        parentId: CategoriesTable.parentId,
+        sortOrder: CategoriesTable.sortOrder,
+        createdAt: CategoriesTable.createdAt,
+        updatedAt: CategoriesTable.updatedAt,
+      },
+    })
+    .from(PostCategoriesTable)
+    .innerJoin(
+      CategoriesTable,
+      eq(PostCategoriesTable.categoryId, CategoriesTable.id),
+    )
+    .where(eq(PostCategoriesTable.postId, post.id));
+  const categories = categoryRows.map((r) => r.category);
+
+  return { ...rest, tags, categories };
 }
 
 /**

@@ -52,34 +52,34 @@ export function Pagination({
   };
 
   return (
-    <div className="flex flex-wrap items-center justify-center gap-2 py-6">
-      {/* Previous */}
+    <div className="flex flex-wrap items-center justify-center gap-1.5 py-6">
+      {/* Previous: icon only，手机端不挤 */}
       <button
         type="button"
         disabled={currentPage <= 1}
         onClick={() => onPageChange(currentPage - 1)}
+        aria-label="上一页"
         className={cn(
-          "flex items-center gap-0.5 rounded-md px-3 py-2 text-sm font-medium transition",
+          "flex h-9 w-9 items-center justify-center rounded-md transition",
           currentPage <= 1
             ? "cursor-not-allowed fuwari-text-50 opacity-50"
             : "bg-(--fuwari-card-bg) text-(--fuwari-btn-content) hover:bg-(--fuwari-primary) hover:text-white",
         )}
       >
-        <ChevronLeft size={16} />
-        上一页
+        <ChevronLeft size={18} />
       </button>
 
       {/* Page numbers */}
       {items.map((item, idx) => {
         if (item === "ellipsis") {
-        return (
-          <span
-            key={`ellipsis-${idx}`}
-            className="px-2 text-sm fuwari-text-50"
-          >
-            ...
-          </span>
-        );
+          return (
+            <span
+              key={`ellipsis-${idx}`}
+              className="px-1 text-sm fuwari-text-50"
+            >
+              ...
+            </span>
+          );
         }
 
         const isActive = item === currentPage;
@@ -89,7 +89,7 @@ export function Pagination({
             type="button"
             onClick={() => onPageChange(item)}
             className={cn(
-              "min-w-[2.25rem] rounded-md px-3 py-2 text-sm font-medium transition",
+              "flex h-9 min-w-[2.25rem] items-center justify-center rounded-md px-2.5 text-sm font-medium transition",
               isActive
                 ? "bg-(--fuwari-primary) text-white shadow-sm"
                 : "bg-(--fuwari-card-bg) text-(--fuwari-btn-content) hover:bg-(--fuwari-primary) hover:text-white",
@@ -100,24 +100,24 @@ export function Pagination({
         );
       })}
 
-      {/* Next */}
+      {/* Next: icon only */}
       <button
         type="button"
         disabled={currentPage >= totalPages}
         onClick={() => onPageChange(currentPage + 1)}
+        aria-label="下一页"
         className={cn(
-          "flex items-center gap-0.5 rounded-md px-3 py-2 text-sm font-medium transition",
+          "flex h-9 w-9 items-center justify-center rounded-md transition",
           currentPage >= totalPages
             ? "cursor-not-allowed fuwari-text-50 opacity-50"
             : "bg-(--fuwari-card-bg) text-(--fuwari-btn-content) hover:bg-(--fuwari-primary) hover:text-white",
         )}
       >
-        下一页
-        <ChevronRight size={16} />
+        <ChevronRight size={18} />
       </button>
 
-      {/* Jump */}
-      <div className="flex items-center gap-1 rounded-md bg-(--fuwari-card-bg) px-2 py-1.5">
+      {/* Jump：保持输入框 + 校验 + onPageChange 原逻辑，仅收紧样式 */}
+      <div className="ml-1 flex items-center gap-1 rounded-md bg-(--fuwari-card-bg) px-2 py-1">
         <span className="text-sm fuwari-text-50">跳转</span>
         <input
           type="text"
@@ -127,12 +127,13 @@ export function Pagination({
           onKeyDown={(e) => {
             if (e.key === "Enter") handleJump();
           }}
-          className="w-12 rounded border border-(--fuwari-input-border) bg-(--fuwari-input-bg) px-2 py-1 text-center text-sm text-(--fuwari-btn-content) outline-none focus:border-(--fuwari-primary)"
+          className="w-11 rounded border border-(--fuwari-input-border) bg-(--fuwari-input-bg) px-2 py-1 text-center text-sm text-(--fuwari-btn-content) outline-none focus:border-(--fuwari-primary)"
           placeholder={`${totalPages}`}
         />
         <button
           type="button"
           onClick={handleJump}
+          aria-label="跳转到指定页"
           className="flex items-center text-sm font-medium fuwari-text-50 transition hover:text-(--fuwari-primary)"
         >
           <ChevronRight size={16} />

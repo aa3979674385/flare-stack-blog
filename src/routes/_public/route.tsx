@@ -12,9 +12,15 @@ import { CACHE_CONTROL } from "@/lib/constants";
 import { m } from "@/paraglide/messages";
 
 export const Route = createFileRoute("/_public")({
-  loader: ({ context }) => ({
-    preloadImages: getThemePreloadImages(context.siteConfig),
-  }),
+  loader: async ({ context }) => {
+    // 预取导航数据：让 SSR 首屏就渲染出真实导航菜单。
+    // 否则组件里的 useQuery(navMenuQuery) 在服务端处于 pending（空壳 <nav>），
+    // 客户端注水后才有数据 → 全站水合不匹配 (#418)。
+    await context.queryClient.ensureQueryData(navMenuQuery);
+    return {
+      preloadImages: getThemePreloadImages(context.siteConfig),
+    };
+  },
   component: PublicLayout,
   headers: () => {
     return CACHE_CONTROL.public;

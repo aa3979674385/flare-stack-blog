@@ -14,6 +14,8 @@ import { m } from "@/paraglide/messages";
 export const Route = createFileRoute("/_user")({
   loader: async ({ context }) => {
     const session = await context.queryClient.fetchQuery(sessionQuery);
+    // 预取导航数据：消除用户区布局层 SSR 空壳导致的全站水合 mismatch
+    await context.queryClient.ensureQueryData(navMenuQuery);
     return { session };
   },
   component: UserLayout,

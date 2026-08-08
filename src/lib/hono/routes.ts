@@ -1,4 +1,4 @@
-import handler from "@tanstack/react-start/server-entry";
+import handler from "@/lib/worker/ssr-stream-handler";
 import type { Context } from "hono";
 import { Hono } from "hono";
 import { proxy } from "hono/proxy";

@@ -19,14 +19,11 @@ import ReactDOMServer from "react-dom/server";
  *
  * 另：捕获 SSR 渲染期错误。React 会把 Suspense 边界内的错误静默吞掉并输出
  * `<!--$!-->` 标记（客户端因此必须整棵子树重渲染 → #419），错误本身不会
- * 出现在 HTML 里。这里用 onError 收集，写入 Workers 日志；当请求带
- * `?__ssrdbg=1` 时额外通过 `x-ssr-error` 响应头回传，便于线上定位。
+ * 出现在 HTML 里。这里用 onError 把错误打到 Workers 日志，便于线上排查。
  */
 const allReadyStreamHandler = defineHandlerCallback(
   ({ request, router, responseHeaders }) => {
     return (async () => {
-      const ssrErrors: string[] = [];
-
       // biome-ignore lint/suspicious/noExplicitAny: React 流式 ReadableStream 与 DOM ReadableStream 类型不兼容，需绕过
       const stream: any = await ReactDOMServer.renderToReadableStream(
         jsx(StartServer, { router }),
@@ -37,7 +34,6 @@ const allReadyStreamHandler = defineHandlerCallback(
           onError(error: unknown) {
             const err = error as Error | undefined;
             const detail = `${err?.name ?? "Error"}: ${err?.message ?? String(error)} @@ ${err?.stack ?? "(no stack)"}`;
-            ssrErrors.push(detail);
             console.error("[SSR ERROR]", detail);
           },
         },
@@ -45,21 +41,6 @@ const allReadyStreamHandler = defineHandlerCallback(
 
       // 关键修复：无条件等待所有 Suspense 边界 resolve（框架默认仅对 bot 等待）
       await stream.allReady;
-
-      if (ssrErrors.length > 0) {
-        let debugRequested = false;
-        try {
-          debugRequested = new URL(request.url).searchParams.has("__ssrdbg");
-        } catch {
-          debugRequested = false;
-        }
-        if (debugRequested) {
-          responseHeaders.set(
-            "x-ssr-error",
-            encodeURIComponent(ssrErrors.join(" ||| ").slice(0, 2000)),
-          );
-        }
-      }
 
       // biome-ignore lint/suspicious/noExplicitAny: transformReadableStreamWithRouter 返回 stream/web ReadableStream，与 Response BodyInit 类型不兼容
       const responseStream: any = transformReadableStreamWithRouter(

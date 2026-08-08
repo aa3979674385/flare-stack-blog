@@ -77,17 +77,25 @@ export function Turnstile({
 }: TurnstileProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const internalWidgetIdRef = useRef<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  // Turnstile 是纯客户端 widget：服务端没有 window，也读不到 import.meta.env 的
+  // VITE_TURNSTILE_SITE_KEY。若直接渲染，服务端输出 null、客户端输出 <div>，
+  // 结构不一致会触发 #419。用 mounted 守卫，首屏两端都渲染 null，挂载后再渲染容器。
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const siteKey = clientEnv().VITE_TURNSTILE_SITE_KEY;
 
   useEffect(() => {
-    if (!siteKey || !containerRef.current) return;
+    if (!mounted || !siteKey || !containerRef.current) return;
 
-    let mounted = true;
+    let isMounted = true;
 
     loadScript()
       .then(() => {
-        if (!mounted || !containerRef.current || !window.turnstile) return;
+        if (!isMounted || !containerRef.current || !window.turnstile) return;
 
         const id = window.turnstile.render(containerRef.current, {
           sitekey: siteKey,
@@ -107,7 +115,7 @@ export function Turnstile({
       });
 
     return () => {
-      mounted = false;
+      isMounted = false;
       if (internalWidgetIdRef.current && window.turnstile) {
         window.turnstile.remove(internalWidgetIdRef.current);
         internalWidgetIdRef.current = null;
@@ -116,9 +124,9 @@ export function Turnstile({
         }
       }
     };
-  }, [siteKey, onVerify, onError, onExpire, action, externalWidgetIdRef]);
+  }, [mounted, siteKey, onVerify, onError, onExpire, action, externalWidgetIdRef]);
 
-  if (!siteKey) return null;
+  if (!mounted || !siteKey) return null;
 
   return <div ref={containerRef} />;
 }
@@ -131,6 +139,13 @@ export function Turnstile({
  */
 export function useTurnstile(action?: string) {
   const [token, setToken] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+  // 首屏（服务端 + 客户端首帧）统一为 false，挂载后再取真实值。
+  // 否则服务端读不到 VITE_TURNSTILE_SITE_KEY（clientEnv 为客户端专用），
+  // isPending 两端不一致会导致按钮 disabled 属性 mismatch → #419。
+  useEffect(() => {
+    setMounted(true);
+  }, []);
   const widgetIdRef = useRef<string | null>(null);
   const siteKey = clientEnv().VITE_TURNSTILE_SITE_KEY;
 
@@ -155,7 +170,7 @@ export function useTurnstile(action?: string) {
 
   return {
     /** Turnstile is configured but challenge not yet completed */
-    isPending: !!siteKey && !token,
+    isPending: mounted && !!siteKey && !token,
     /** The Turnstile token to send in X-Turnstile-Token header */
     token,
     /** Reset the widget to get a fresh token after each API call */

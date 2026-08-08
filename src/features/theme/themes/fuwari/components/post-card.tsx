@@ -148,7 +148,7 @@ export function PostCard({
             views !== undefined && (
               <span className="inline-flex items-center gap-1.5">
                 <Eye size={15} />
-                {views.toLocaleString()}
+                {views.toLocaleString("en-US")}
               </span>
             )
           )}

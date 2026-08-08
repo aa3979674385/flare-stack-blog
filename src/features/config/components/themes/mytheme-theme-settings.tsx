@@ -572,6 +572,7 @@ export function MythemeOtherSettings() {
   const enabled = watch(`${base}.enabled`) ?? true;
   const showThemeToggle = watch(`${base}.showThemeToggle`) ?? true;
   const showBackToTop = watch(`${base}.showBackToTop`) ?? true;
+  const showOnMobile = watch(`${base}.showOnMobile`) ?? true;
   const fixedMode = (watch(`${base}.fixedMode`) ?? "fixed") as
     | "fixed"
     | "scroll";
@@ -635,6 +636,21 @@ export function MythemeOtherSettings() {
               </p>
               <p className="text-xs text-muted-foreground">
                 固定在按钮组最底部，点击平滑滚动回页面顶部。
+              </p>
+            </div>
+          </label>
+
+          <label className="flex items-center gap-4 rounded-lg border border-border/20 bg-muted/10 p-4 cursor-pointer hover:bg-muted/20 transition-colors">
+            <Checkbox
+              checked={showOnMobile}
+              onCheckedChange={(c) => setBool(`${base}.showOnMobile`, c)}
+            />
+            <div className="space-y-1 min-w-0">
+              <p className="text-sm font-medium text-foreground">
+                在手机端显示
+              </p>
+              <p className="text-xs text-muted-foreground">
+                关闭后，窄屏（手机）上隐藏整个悬浮工具栏，仅在大屏显示。
               </p>
             </div>
           </label>

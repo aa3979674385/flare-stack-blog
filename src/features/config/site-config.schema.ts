@@ -345,6 +345,7 @@ function createFloatingToolbarSchema() {
     enabled: z.boolean(),
     showThemeToggle: z.boolean(),
     showBackToTop: z.boolean(),
+    showOnMobile: z.boolean().default(true),
     fixedMode: z.enum(["fixed", "scroll"]),
     buttons: z.array(createFloatingToolbarButtonSchema()),
   });
@@ -355,6 +356,7 @@ function createFloatingToolbarInputSchema() {
     enabled: z.boolean().optional(),
     showThemeToggle: z.boolean().optional(),
     showBackToTop: z.boolean().optional(),
+    showOnMobile: z.boolean().optional(),
     fixedMode: z.enum(["fixed", "scroll"]).optional(),
     buttons: z.array(createFloatingToolbarButtonInputSchema()).optional(),
   });
@@ -365,6 +367,7 @@ function createFloatingToolbarInputFormSchema(messages: Messages) {
     enabled: z.boolean().optional(),
     showThemeToggle: z.boolean().optional(),
     showBackToTop: z.boolean().optional(),
+    showOnMobile: z.boolean().optional(),
     fixedMode: z.enum(["fixed", "scroll"]).optional(),
     buttons: z
       .array(createFloatingToolbarButtonInputFormSchema(messages))

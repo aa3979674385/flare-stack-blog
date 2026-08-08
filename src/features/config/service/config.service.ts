@@ -226,9 +226,10 @@ export function resolveSiteConfig(
           label: t.label,
           postLimit: t.postLimit ?? 24,
         })),
-        floatingToolbar:
-          config?.site?.theme?.mytheme?.floatingToolbar ??
-          blogConfig.theme.mytheme.floatingToolbar,
+        floatingToolbar: {
+          ...blogConfig.theme.mytheme.floatingToolbar,
+          ...(config?.site?.theme?.mytheme?.floatingToolbar ?? {}),
+        },
         copyrightNotice:
           config?.site?.theme?.mytheme?.copyrightNotice ??
           blogConfig.theme.mytheme.copyrightNotice,

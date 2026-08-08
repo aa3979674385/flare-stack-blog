@@ -44,6 +44,7 @@ export const blogConfig = {
         enabled: true,
         showThemeToggle: true,
         showBackToTop: true,
+        showOnMobile: true,
         fixedMode: "fixed",
         buttons: [],
       },

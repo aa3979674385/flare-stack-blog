@@ -154,6 +154,7 @@ export function FloatingToolbar({
       <div
         className={cn(
           "fixed right-5 bottom-24 z-40 flex flex-col items-end gap-3 transition-all duration-300",
+          !config.showOnMobile && "max-sm:hidden",
           visible
             ? "opacity-100 translate-x-0 pointer-events-auto"
             : "opacity-0 translate-x-6 pointer-events-none",

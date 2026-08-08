@@ -108,7 +108,7 @@ export function PublicLayout({
         }}
       >
         <div
-          className={`relative mx-auto px-0 md:px-4 pb-8 grid grid-cols-1 ${gridCols} gap-4`}
+          className={`relative mx-auto px-4 md:px-4 pb-8 grid grid-cols-1 ${gridCols} gap-4`}
           style={{ maxWidth: "var(--fuwari-page-width)" }}
         >
           {/* Sidebar Column (hidden on homepage / posts list / mobile; 详情页在右、其它页在左) */}

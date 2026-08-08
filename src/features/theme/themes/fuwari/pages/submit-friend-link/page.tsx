@@ -13,6 +13,7 @@ import type {
   SubmitFriendLinkPageProps,
 } from "@/features/theme/contract/pages";
 import { m } from "@/paraglide/messages";
+import { formatDate } from "@/lib/utils";
 
 function StatusBadge({ status }: { status: MyFriendLink["status"] }) {
   switch (status) {
@@ -231,7 +232,7 @@ export function SubmitFriendLinkPage({
                   <div className="text-[10px] fuwari-text-30 text-right mt-2 transition-colors">
                     {m.friend_link_submitted_at()}{" "}
                     <ClientOnly fallback="-">
-                      {new Date(link.createdAt).toLocaleDateString()}
+                      {formatDate(link.createdAt)}
                     </ClientOnly>
                   </div>
                 </div>

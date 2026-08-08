@@ -92,7 +92,13 @@ interface ThemeProviderProps {
   children: ReactNode;
 }
 export function ThemeProvider({ children }: ThemeProviderProps) {
-  const [userTheme, setUserTheme] = useState<UserTheme>(getStoredUserTheme);
+  // 首屏必须用确定值，避免「服务端渲染 = "system" / 客户端首帧 = localStorage」导致水合不匹配
+  // （全站 navbar 的 ThemeToggle 的 title/aria-label 据此渲染，会触发 #418/#419）。
+  // 真实偏好在挂载后从 localStorage 同步，此时已脱离水合阶段，不会再 mismatch。
+  const [userTheme, setUserTheme] = useState<UserTheme>("system");
+  useEffect(() => {
+    setUserTheme(getStoredUserTheme());
+  }, []);
 
   useEffect(() => {
     if (userTheme !== "system") return;

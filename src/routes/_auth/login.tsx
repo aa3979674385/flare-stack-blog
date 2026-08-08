@@ -36,9 +36,13 @@ function RouteComponent() {
     turnstileProps,
   } = useTurnstile("login");
 
-  const currentSearchParams = new URLSearchParams(
-    new URL(location.href, window.location.origin).search,
-  );
+  // 服务端没有 window，直接用 location.href（TanStack Start SSR 下即为完整绝对 URL），
+  // 避免渲染期访问 window 导致 SSR 报错 / 登录页水合失败（#419）。
+  const href = location.href;
+  const url = href.startsWith("http")
+    ? new URL(href)
+    : new URL(href, "http://localhost");
+  const currentSearchParams = new URLSearchParams(url.search);
   const isOAuthAuthorizationRequest =
     !!currentSearchParams.get("client_id") &&
     !!currentSearchParams.get("response_type");

@@ -84,15 +84,11 @@ export function PublicLayout({
             {children}
           </main>
 
-          {/* Footer Column：始终通栏，不被侧边栏占用宽度 */}
-          <div
-            className="order-3 lg:col-span-2 mt-auto"
-          >
-            <Footer />
-          </div>
-
           <BackToTop />
         </div>
+
+        {/* Footer：移出受限宽度的 grid，作为通栏块，分隔线一直到底 */}
+        <Footer />
       </div>
     </div>
   );

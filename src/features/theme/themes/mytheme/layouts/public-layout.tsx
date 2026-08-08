@@ -127,16 +127,12 @@ export function PublicLayout({
             {children}
           </main>
 
-          {/* Footer Column：始终通栏，不被侧边栏占用宽度 */}
-          <div
-            className={cn("order-3 mt-auto", !hideSidebar && "lg:col-span-2")}
-          >
-            <Footer />
-          </div>
-
           <FloatingToolbar config={siteConfig.theme.mytheme.floatingToolbar} />
           <PopupModal />
         </div>
+
+        {/* Footer：移出受限宽度的 grid，作为通栏块，分隔线一直到底 */}
+        <Footer />
       </div>
     </div>
   );

@@ -3,10 +3,26 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { ChevronRight } from "lucide-react";
 import type { HomeCategoryTabConfig, HomePageProps } from "@/features/theme/contract/pages";
+import type { PostItem } from "@/features/posts/schema/posts.schema";
 import { CategoryTabs, type Tab } from "../../components/category-tabs";
 import { GridPostCard } from "../../components/grid-post-card";
 import { Pagination } from "@/features/theme/components/pagination";
 import { postsPagedQueryOptions } from "@/features/posts/queries";
+
+/**
+ * 把置顶文章固定到列表最前面（第 1 页），其余文章去重后跟在后面。
+ * 这样无论发布多少新文章，置顶文章永远在最上面、不会被挤走。
+ */
+function withPinnedOnTop(
+  items: Array<PostItem>,
+  pinned: Array<PostItem> | undefined,
+  page: number,
+): Array<PostItem> {
+  if (!pinned?.length || page !== 1) return items;
+  const pinnedSlugs = new Set(pinned.map((p) => p.slug));
+  const rest = items.filter((p) => !pinnedSlugs.has(p.slug));
+  return [...pinned, ...rest];
+}
 
 const LATEST_TAB_ID = "__latest__";
 const HOME_DEFAULT_PAGE_SIZE = 12;
@@ -17,6 +33,7 @@ export function HomePage({
   recentPostsLimit,
   categoryTabs = [],
   homeCategoryStyle = "tabs",
+  pinnedPosts,
 }: HomePageProps) {
   const mode: StyleMode =
     homeCategoryStyle === "stacked" ? "stacked" : "tabs";
@@ -26,6 +43,7 @@ export function HomePage({
       <HomeStackedView
         recentPostsLimit={recentPostsLimit}
         categoryTabs={categoryTabs}
+        pinnedPosts={pinnedPosts}
       />
     );
   }
@@ -33,6 +51,7 @@ export function HomePage({
     <HomeTabsView
       recentPostsLimit={recentPostsLimit}
       categoryTabs={categoryTabs}
+      pinnedPosts={pinnedPosts}
     />
   );
 }
@@ -41,9 +60,11 @@ export function HomePage({
 function HomeTabsView({
   recentPostsLimit,
   categoryTabs,
+  pinnedPosts,
 }: {
   recentPostsLimit?: number;
   categoryTabs: Array<HomeCategoryTabConfig>;
+  pinnedPosts?: Array<PostItem>;
 }) {
   const [activeId, setActiveId] = useState<string>(LATEST_TAB_ID);
   const [page, setPage] = useState(1);
@@ -93,6 +114,11 @@ function HomeTabsView({
   );
   const visiblePosts = data.items;
   const totalPages = data.totalPages;
+  // 仅「最新发布」(全部文章) 把置顶文章固定到最前；具体分类 tab 不强制置顶，避免跨分类串味。
+  const displayPosts =
+    activeCategoryId === undefined
+      ? withPinnedOnTop(visiblePosts, pinnedPosts, page)
+      : visiblePosts;
 
   // 切换分类 tab 时回到第 1 页
   const handleTabChange = (id: string) => {
@@ -129,7 +155,7 @@ function HomeTabsView({
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
-          {visiblePosts.map((post) => (
+          {displayPosts.map((post) => (
             <GridPostCard key={post.slug} post={post} />
           ))}
         </div>
@@ -149,10 +175,14 @@ function CategorySection({
   categoryId,
   limit,
   title,
+  pinnedPosts,
+  isLatest,
 }: {
   categoryId?: number;
   limit: number;
   title: string;
+  pinnedPosts?: Array<PostItem>;
+  isLatest?: boolean;
 }) {
   const [page, setPage] = useState(1);
 
@@ -162,6 +192,11 @@ function CategorySection({
   );
   const visiblePosts = data.items;
   const totalPages = data.totalPages;
+  // 「最新发布」区块把置顶文章固定到最前，具体分类区块不强制置顶。
+  const displayPosts =
+    isLatest && categoryId === undefined
+      ? withPinnedOnTop(visiblePosts, pinnedPosts, page)
+      : visiblePosts;
 
   const moreSearch = useMemo<{ categoryId?: number }>(
     () => (categoryId !== undefined ? { categoryId } : {}),
@@ -191,7 +226,7 @@ function CategorySection({
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4">
-          {visiblePosts.map((post) => (
+          {displayPosts.map((post) => (
             <GridPostCard key={post.slug} post={post} />
           ))}
         </div>
@@ -210,9 +245,11 @@ function CategorySection({
 function HomeStackedView({
   recentPostsLimit,
   categoryTabs,
+  pinnedPosts,
 }: {
   recentPostsLimit?: number;
   categoryTabs: Array<HomeCategoryTabConfig>;
+  pinnedPosts?: Array<PostItem>;
 }) {
   const latestLimit =
     recentPostsLimit && recentPostsLimit > 0
@@ -225,6 +262,8 @@ function HomeStackedView({
         categoryId={undefined}
         limit={latestLimit}
         title="最新发布"
+        pinnedPosts={pinnedPosts}
+        isLatest
       />
       {categoryTabs.map((tab) => {
         const limit =

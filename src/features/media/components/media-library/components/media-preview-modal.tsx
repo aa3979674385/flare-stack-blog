@@ -23,7 +23,7 @@ import { getLinkedPostsFn } from "@/features/media/api/media.api";
 import type { MediaAsset } from "@/features/media/components/media-library/types";
 import { MEDIA_KEYS } from "@/features/media/queries";
 import { useDelayUnmount } from "@/hooks/use-delay-unmount";
-import { cn, formatBytes } from "@/lib/utils";
+import { cn, formatBytes, formatDate } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 
 interface MediaPreviewModalProps {
@@ -270,7 +270,7 @@ export function MediaPreviewModal({
                   <Calendar size={10} /> {m.media_preview_created()}
                 </div>
                 <div className="text-sm font-mono font-medium uppercase">
-                  {new Date(activeAsset.createdAt).toLocaleDateString()}
+                  {formatDate(activeAsset.createdAt)}
                 </div>
               </div>
             </div>

@@ -18,7 +18,7 @@ import {
 } from "@/features/tags/queries";
 import type { CreateTagInput } from "@/features/tags/tags.schema";
 import { CreateTagInputSchema } from "@/features/tags/tags.schema";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { m } from "@/paraglide/messages";
 
 export function TagManager() {
@@ -252,7 +252,7 @@ export function TagManager() {
                   )}
                   <div className="text-[10px] font-mono text-muted-foreground">
                     {m.tag_manager_mobile_created()}{" "}
-                    {new Date(tag.createdAt).toLocaleDateString()}
+                    {formatDate(tag.createdAt)}
                   </div>
                 </div>
                 <div className="flex flex-col items-end gap-1">
@@ -399,7 +399,7 @@ export function TagManager() {
                       </span>
                     </td>
                     <td className="px-6 py-4 text-[10px] text-muted-foreground/60 font-mono hidden lg:table-cell">
-                      {new Date(tag.createdAt).toLocaleDateString()}
+                      {formatDate(tag.createdAt)}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-2">

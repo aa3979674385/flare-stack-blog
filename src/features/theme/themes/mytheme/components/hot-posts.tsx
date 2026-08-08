@@ -1,8 +1,8 @@
-import { Link } from "@tanstack/react-router";
+import { ClientOnly, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { Flame, Clock } from "lucide-react";
 import { popularPostsQuery } from "@/features/posts/queries";
-import { cn } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { postSegment } from "@/lib/post-url";
 
 /** 数字排名配色：1 红、2 橙、3 绿、4 灰、5 浅灰蓝 */
@@ -113,7 +113,11 @@ export function HotPosts() {
                   </p>
                   <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
                     <Clock size={10} />
-                    <span>{timeAgo(post.publishedAt)}</span>
+                    <ClientOnly
+                      fallback={<span>{formatDate(post.publishedAt)}</span>}
+                    >
+                      <span>{timeAgo(post.publishedAt)}</span>
+                    </ClientOnly>
                   </div>
                 </div>
 

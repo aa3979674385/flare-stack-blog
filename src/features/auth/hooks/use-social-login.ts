@@ -15,12 +15,17 @@ export function useSocialLogin(options: UseSocialLoginOptions) {
 
   const [isLoading, setIsLoading] = useState(false);
   const previousLocation = usePreviousLocation();
-  const callbackURL = normalizeRedirectUrl(redirectTo, previousLocation);
 
   const handleGithubLogin = async () => {
     if (isLoading) return;
 
     setIsLoading(true);
+
+    // 注意：normalizeRedirectUrl 依赖 window.location，必须在点击回调里惰性计算。
+    // 之前它在组件渲染期（hook body）被调用，导致 SSR 时抛 "window is not defined"，
+    // React 把整个登录页 Suspense 边界标记为出错（<!--$!-->），客户端只能整棵子树
+    // 重新渲染 → 登录页固定报水合错误 #419。
+    const callbackURL = normalizeRedirectUrl(redirectTo, previousLocation);
 
     const { error } = await authClient.signIn.social({
       provider: "github",

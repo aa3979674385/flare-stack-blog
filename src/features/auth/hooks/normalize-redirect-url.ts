@@ -4,6 +4,14 @@ export function normalizeRedirectUrl(
   redirectTo: string | undefined,
   fallback: string,
 ) {
+  // SSR 守卫：本函数依赖 window.location，服务端没有 window。若在渲染期被调用，
+  // 抛错会让 React 把整个 Suspense 边界标记为出错，进而导致水合失败（#419）。
+  // 这里降级为相对路径，保证服务端不抛错；调用方应尽量在事件回调里惰性调用。
+  if (typeof window === "undefined") {
+    if (!redirectTo) return fallback;
+    return redirectTo.startsWith("/") ? redirectTo : fallback;
+  }
+
   const safeFallback = `${window.location.origin}${fallback}`;
 
   if (!redirectTo) {

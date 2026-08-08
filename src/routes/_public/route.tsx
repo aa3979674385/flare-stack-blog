@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Outlet, useNavigate } from "@tanstack/react-router";
 import theme from "@theme";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { AUTH_KEYS } from "@/features/auth/queries";
 import { getThemePreloadImages } from "@/features/theme/site-config.helpers";
@@ -40,6 +40,17 @@ function PublicLayout() {
     authClient.useSession();
   const queryClient = useQueryClient();
 
+  // 水合守卫：/_public 走 CDN 公共缓存（CACHE_CONTROL.public），SSR 绝不能输出
+  // 用户专属的登录态（否则会被 CDN 缓存串给其他访客）。因此服务端必然渲染
+  // 「未登录 / 加载中」骨架，而 better-auth 的 useSession 在客户端首帧就可能
+  // 已有缓存态（isPending=false）→ 服务端 <div>Skeleton 对上客户端 <a>Link，
+  // 结构不匹配 → 全站 #418。这里强制客户端首帧与服务端一致，useEffect 之后
+  // （水合完成）再切换到真实登录态。
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    setHydrated(true);
+  }, []);
+
   const { data: navMenu = [] } = useQuery(navMenuQuery);
   const navOptions = navMenu;
 
@@ -77,8 +88,8 @@ function PublicLayout() {
     <>
       <theme.PublicLayout
         navOptions={navOptions}
-        user={session?.user}
-        isSessionLoading={isSessionPending}
+        user={hydrated ? session?.user : undefined}
+        isSessionLoading={!hydrated || isSessionPending}
         logout={logout}
       >
         <Outlet />

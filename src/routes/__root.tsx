@@ -19,6 +19,7 @@ import { bannedStatusQuery } from "@/features/users/queries";
 import TanStackQueryDevtools from "@/integrations/tanstack-query/devtools";
 import { clientEnv } from "@/lib/env/client.env";
 import { getLocale } from "@/paraglide/runtime";
+import { ClickEffect } from "@/components/common/click-effect";
 import appCss from "@/styles.css?url";
 
 interface MyRouterContext {
@@ -159,6 +160,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         <ThemeProvider>{children}</ThemeProvider>
+        <ClickEffect />
         <TanStackDevtools
           config={{
             position: "bottom-right",

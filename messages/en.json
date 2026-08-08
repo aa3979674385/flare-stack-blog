@@ -105,7 +105,7 @@
   ],
   "format_date": [
     {
-      "declarations": ["input date", "local formattedDateEn = date: datetime year=numeric month=2-digit day=2-digit"],
+      "declarations": ["input date", "local formattedDateEn = date: datetime year=numeric month=2-digit day=2-digit timeZone=Asia/Shanghai"],
       "match": {
         "date=*": "{formattedDateEn}"
       }
@@ -113,7 +113,7 @@
   ],
   "format_datetime": [
     {
-      "declarations": ["input date", "local formattedDateTimeEn = date: datetime year=numeric month=2-digit day=2-digit hour=2-digit minute=2-digit"],
+      "declarations": ["input date", "local formattedDateTimeEn = date: datetime year=numeric month=2-digit day=2-digit hour=2-digit minute=2-digit timeZone=Asia/Shanghai"],
       "match": {
         "date=*": "{formattedDateTimeEn}"
       }
@@ -482,7 +482,7 @@
   "theme_toggle_title": "Theme: {theme}",
   "format_time": [
     {
-      "declarations": ["input date", "local formattedTimeEn = date: datetime hour=2-digit minute=2-digit hour12=true"],
+      "declarations": ["input date", "local formattedTimeEn = date: datetime hour=2-digit minute=2-digit hour12=true timeZone=Asia/Shanghai"],
       "match": {
         "date=*": "{formattedTimeEn}"
       }
@@ -490,7 +490,7 @@
   ],
   "format_month_day_time": [
     {
-      "declarations": ["input date", "local formattedDateTimeEn = date: datetime month=2-digit day=2-digit hour=2-digit minute=2-digit hour12=true"],
+      "declarations": ["input date", "local formattedDateTimeEn = date: datetime month=2-digit day=2-digit hour=2-digit minute=2-digit hour12=true timeZone=Asia/Shanghai"],
       "match": {
         "date=*": "{formattedDateTimeEn}"
       }

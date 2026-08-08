@@ -653,7 +653,7 @@ export async function findPinnedPosts(db: DB) {
       buildPostWhereClause({ publicOnly: true }),
       isNotNull(PostsTable.pinnedAt),
     ),
-    orderBy: [desc(PostsTable.pinnedAt)],
+    orderBy: [desc(PostsTable.publishedAt)],
     columns: {
       id: true,
       title: true,

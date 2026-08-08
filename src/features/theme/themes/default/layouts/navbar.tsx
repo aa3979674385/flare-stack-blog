@@ -127,7 +127,7 @@ export function Navbar({
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-1">
               <ThemeToggle />
-              <LanguageSwitcher className="text-muted-foreground hover:text-foreground h-8 w-8" />
+              <LanguageSwitcher className="hidden text-muted-foreground hover:text-foreground h-8 w-8" />
               <Link
                 to="/search"
                 className="text-muted-foreground hover:text-foreground h-8 w-8 flex items-center justify-center transition-colors"
